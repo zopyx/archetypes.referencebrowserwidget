@@ -14,6 +14,7 @@ from plone.memoize import view
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone import Batch
+from Products.Archetypes.utils import shasattr
 
 from archetypes.referencebrowserwidget import utils
 from archetypes.referencebrowserwidget.interfaces import IFieldRelation
@@ -271,7 +272,8 @@ class ReferenceBrowserPopup(BrowserView):
 
     def getUid(self, item):
         assert self._updated
-        return (self.has_brain and item.UID or item.aq_explicit.UID) or None
+
+        return (shasattr(item, 'UID') and item.UID) or (shasattr(item, 'aq_explicit') and item.aq_explicit.UID) or None
 
 
     def isNotSelf(self, item):
