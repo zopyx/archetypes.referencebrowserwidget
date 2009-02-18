@@ -196,7 +196,7 @@
     <metal:edit_macro define-macro="edit">
       <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body">
-          <metal:use use-macro="here/referencebrowser/macros/reference_edit" />
+          <metal:use use-macro="here/atreferencebrowser/macros/reference_edit" />
         </metal:fill>
       </metal:use>
     </metal:edit_macro>

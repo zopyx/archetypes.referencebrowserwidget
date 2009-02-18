@@ -7,9 +7,9 @@ from Products.Archetypes.utils import shasattr
 class ReferenceBrowserWidget(ReferenceWidget):
     _properties = ReferenceWidget._properties.copy()
     _properties.update({
-        'macro': "referencebrowser",
+        'macro': "atreferencebrowser",
         'size': '',
-        'helper_js': ('referencebrowser.js',),
+        'helper_js': ('atreferencebrowser.js',),
         'default_search_index': 'SearchableText',
         'show_indexes': 0,
         'available_indexes': {},
