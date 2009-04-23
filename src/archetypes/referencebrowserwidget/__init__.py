@@ -4,6 +4,8 @@ from Products.CMFCore.permissions import AddPortalContent
 from archetypes.referencebrowserwidget.config import PROJECTNAME
 from archetypes.referencebrowserwidget.widget import ReferenceBrowserWidget
 
+import monkeypatch
+
 def initialize(context):
     import demo
     content_types, constructors, ftis = process_types(
