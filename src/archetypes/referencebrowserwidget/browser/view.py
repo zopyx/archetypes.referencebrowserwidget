@@ -3,6 +3,7 @@ from types import ListType, TupleType
 import zope.interface
 
 from zope.component import getAdapter
+from zope.component import getAdapters
 from zope.component import getMultiAdapter, queryMultiAdapter
 from zope.formlib import namedtemplate
 
@@ -28,6 +29,14 @@ from archetypes.referencebrowserwidget import utils
 from archetypes.referencebrowserwidget.interfaces import IFieldRelation
 from archetypes.referencebrowserwidget.interfaces import \
         IReferenceBrowserHelperView
+
+try:
+    #check if there might be schemaextenders available
+    from archetypes.schemaextender.interfaces import ISchemaExtender
+    EXTENDERS = 1
+except ImportError:
+    EXTENDERS = 0
+
 
 default_popup_template = named_template_adapter(
     ViewPageTemplateFile('popup.pt'))
@@ -70,6 +79,7 @@ class ReferenceBrowserHelperView(BrowserView):
         """ Return the path to the startup directory. """
         widget = field.widget
         directory = widget.startup_directory
+
         if getattr(widget, 'startup_directory_method', None):
             # First check that the method exists and isn't inherited.
             method = getattr(aq_base(self.context),
@@ -84,6 +94,15 @@ class ReferenceBrowserHelperView(BrowserView):
                 if callable(method):
                     method = method()
                 return method
+
+            if EXTENDERS:
+                #No method found on the object, then loop over all extenders
+                for name, extender in getAdapters((self.context, ), ISchemaExtender):
+                    method = getattr(extender, widget.startup_directory_method, False)
+                    if callable(method):
+                        method = method()
+                        return method
+
         return utils.getStartupDirectory(self.context, directory)
 
     def getPortalPath(self):
