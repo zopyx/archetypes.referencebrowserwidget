@@ -18,11 +18,7 @@ from plone.app.form._named import named_template_adapter
 
 from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.CMFCore.utils import getToolByName
-try:
-    from plone.uuid.interfaces import IUUID
-    HAS_UUID = True
-except ImportError:
-    HAS_UUID = False
+from plone.uuid.interfaces import IUUID
 try:
     # Plone >= 4.0
     from plone.sequencebatch import Batch
@@ -71,10 +67,7 @@ class ReferenceBrowserHelperView(BrowserView):
         """ Helper to get UID in restricted code without having rights to
             access the object
         """
-        if HAS_UUID:
-            return IUUID(ref, None)
-        else:
-            return ref.UID()
+        return IUUID(ref, None)
 
     def getStartupDirectory(self, field):
         """ Return the URL to the startup directory. """
