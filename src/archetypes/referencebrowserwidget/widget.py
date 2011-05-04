@@ -39,6 +39,7 @@ class ReferenceBrowserWidget(ReferenceWidget):
         'popup_width': 500,
         'popup_height': 550,
         'popup_name': 'popup',
+        'wild_card_search' : False
         })
 
     # for documentation of properties see: README.txt
@@ -152,4 +153,8 @@ registerPropertyType('search_catalog', 'string', ReferenceBrowserWidget)
 registerPropertyType('image_portal_types', 'lines', ReferenceBrowserWidget)
 registerPropertyType('image_method', 'string', ReferenceBrowserWidget)
 registerPropertyType('force_close_on_insert',
-                     'boolean', ReferenceBrowserWidget)
+                     'boolean', ReferenceBrowserWidget) 
+registerPropertyType('wild_card_search',
+                     'boolean', ReferenceBrowserWidget) 
+                     
+                     

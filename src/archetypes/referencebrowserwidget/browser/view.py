@@ -98,6 +98,7 @@ class QueryCatalogView(BrowserView):
     def __call__(self, show_all=0,
                  quote_logic=0,
                  quote_logic_indexes=['SearchableText'],
+                 wild_card_search=False,
                  search_catalog=None):
 
         results=[]
@@ -131,7 +132,13 @@ class QueryCatalogView(BrowserView):
 # doesn't normal call catalog unless some field has been queried
 # against. if you want to call the catalog _regardless_ of whether
 # any items were found, then you can pass show_all=1.
-
+        if wild_card_search: 
+            try:
+                query['SearchableText'] = '*' + query['SearchableText'] + '*'
+            except:
+                #in case saerchableText is not present
+                pass
+ 
         if show_query:
             try:
                 results = catalog(**query)
@@ -233,7 +240,7 @@ class ReferenceBrowserPopup(BrowserView):
                                  name='refbrowser_querycatalog')
             result = (self.widget.show_results_without_query or \
                       self.search_text) and \
-                      qc(search_catalog=self.widget.search_catalog)
+                      qc(wild_card_search=self.widget.wild_card_search, search_catalog=self.widget.search_catalog)
 
             self.has_queryresults = bool(result)
 
