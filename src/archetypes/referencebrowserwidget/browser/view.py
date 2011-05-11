@@ -6,6 +6,7 @@ import zope.interface
 from zope.component import getAdapter
 from zope.component import getMultiAdapter, queryMultiAdapter
 from zope.formlib import namedtemplate
+from zope.publisher.interfaces.browser import IBrowserView
 
 from Acquisition import aq_inner
 from Acquisition import aq_base
@@ -92,6 +93,13 @@ class ReferenceBrowserHelperView(BrowserView):
         context = aq_inner(self.context)
         return urllib.quote('/'.join(context.getPhysicalPath()))
 
+    def getDestinationDirectoryToAdd (self, field):
+        """ Return the URL where item has to add. """
+        widget = field.widget
+        directory = widget.getDestinationDirectoryToAdd(self.context, field)
+        return utils.getStartupDirectory(self.context, directory)
+        
+
 
 class QueryCatalogView(BrowserView):
 
@@ -163,6 +171,8 @@ class ReferenceBrowserPopup(BrowserView):
         super(ReferenceBrowserPopup, self).__init__(context, request)
 
         self.at_url = urllib.quote(request.get('at_url'))
+        #XXX very bad way to compute startup
+        self.startup_url = "/".join(self.at_url.split('/')[:-3])
         self.fieldName = request.get('fieldName')
         self.fieldRealName = request.get('fieldRealName')
         self.search_text = request.get('searchValue', '')
@@ -314,3 +324,31 @@ class ReferenceBrowserPopup(BrowserView):
         assert self._updated
         item = aq_base(item)
         return getattr(item, 'Title', '') or getattr(item, 'getId', '')
+
+    def getPermissionToAdd(self):
+        """ return the permission flag to add an item """
+        return self.widget.permission_to_add_item
+
+    def getEditForm(self):
+        """return edit form for Architect object"""
+        urltool = getToolByName(self.context, "portal_url")
+        portal  = urltool.getPortalObject()
+        try:
+            architect = portal.invokeFactory("Architect", "tmp_archi")
+        except:
+            pass
+        archi = getattr(portal, "tmp_archi")
+        #template = getMultiAdapter((self.context, self.request),
+                                #name="architect_edit")
+        #archiEdit = getMultiAdapter((archi, self.request,), IBrowserView)
+        return archi.base_edit()
+    def getEditUrl(self):
+        urltool = getToolByName(self.context, "portal_url")
+        portal  = urltool.getPortalObject()
+        try:
+            architect = portal.invokeFactory("Architect", "tmp_archi")
+        except:
+            pass
+        archi = getattr(portal, "tmp_archi")
+        return archi.absolute_url()+"/edit"        
+        

@@ -11,6 +11,7 @@
       tal:define="fieldName view/fieldName;
                   multiValued view/multiValued;
                   fieldRealName view/fieldRealName;
+                  editForm view/getEditForm;
                   at_obj nocall:view/at_obj;
                   widget nocall:view/widget;
                   title python:widget.Label(at_obj);
@@ -100,10 +101,12 @@
             tal:attributes="value fieldRealName" />
      <input type="hidden" name="at_url" value=""
             tal:attributes="value view/at_url" />
+     <input type="hidden" name="startup_directory" value=""
+            tal:attributes="value view/startup_url" />
      <input type="hidden" name="multiValued" value=""
             tal:attributes="value multiValued" />
      <input type="hidden" name="close_window" value=""
-            tal:attributes="value view/close_window" />
+            tal:attributes="value view/close_window" />       
     </form>
     <!-- actual list of objects, either searchresults or folder contents -->
     <tal:block tal:define="batch view/getResult;">
@@ -150,8 +153,16 @@
       </div>
 
       <!-- object list -->
-      <p tal:condition="not:view/has_queryresults"
-         i18n:translate="referencebrowser_no_items_found">No items found.</p>
+      <p tal:condition="not:view/has_queryresults">
+
+         <span i18n:translate="referencebrowser_no_items_found">No items found.</span>
+         <form  method="post" 
+                tal:condition="view/getPermissionToAdd"
+                tal:attributes="action request/getURL"
+                id="add">
+             <input type="submit" name="add" value="ajouter"/>
+         </form>
+     </p>
 
       <table class="group" width="100%" cellspacing="0" cellpadding="2"
          tal:condition="batch">

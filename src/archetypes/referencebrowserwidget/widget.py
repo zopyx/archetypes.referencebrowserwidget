@@ -39,7 +39,10 @@ class ReferenceBrowserWidget(ReferenceWidget):
         'popup_width': 500,
         'popup_height': 550,
         'popup_name': 'popup',
-        'wild_card_search' : False
+        'wild_card_search' : False,
+        'permission_to_add_item' : False,
+        'destination_directory_to_add' : '',
+        'destination_directory_to_add_method' : ''
         })
 
     # for documentation of properties see: README.txt
@@ -67,6 +70,36 @@ class ReferenceBrowserWidget(ReferenceWidget):
 
         elif getattr(self, 'startup_directory', None):
             directory = self.startup_directory
+            if not directory.startswith('/'):
+                directory = '/'.join([basepath, directory])
+
+        else:
+            directory = basepath
+
+        return directory
+
+    security.declarePublic('getDestinationDirectoryToAdd')
+    def getDestinationDirectoryToAdd(self, instance, field):
+        """get widget destination directory to add an item
+        """
+        url_tool = instance.restrictedTraverse('@@plone_tools').url()
+        basepath = '/'.join(url_tool.getRelativeContentPath(instance))
+        directory = ''
+        if getattr(self, 'destination_directory_to_add', None):
+            # First check that the method exists and isn't inherited.
+            method = getattr(aq_base(instance), self.startup_directory_method,
+                             False)
+            if method:
+                # Then get the method again, but with acquisition context this
+                # time:
+                method = getattr(instance, self.destination_directory_to_add_method, False)
+                if callable(method):
+                    method = method()
+
+                directory = method
+
+        elif getattr(self, 'destination_directory_to_add', None):
+            directory = self.destination_directory_to_add
             if not directory.startswith('/'):
                 directory = '/'.join([basepath, directory])
 
@@ -156,5 +189,7 @@ registerPropertyType('force_close_on_insert',
                      'boolean', ReferenceBrowserWidget) 
 registerPropertyType('wild_card_search',
                      'boolean', ReferenceBrowserWidget) 
-                     
+registerPropertyType('permission_to_add',
+                     'boolean', ReferenceBrowserWidget)   
+registerPropertyType('destination_directory_to_add', 'string', ReferenceBrowserWidget)                   
                      

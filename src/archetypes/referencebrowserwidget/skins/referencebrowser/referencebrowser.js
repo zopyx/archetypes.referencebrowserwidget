@@ -22,10 +22,18 @@ jq(function() {
                var fieldname = wrap.find('input[name=fieldName]').attr('value');
                check_referenced_items(fieldname);
                });
+
            },
        onLoad: function() {
            widget_id = this.getTrigger().attr('rel').substring(6);
            disablecurrentrelations(widget_id);
+           var overlay = this.getOverlay()  
+           var wrap = overlay.find('.addeditform');
+           wrap.prepOverlay({
+                     subtype: 'ajax',
+                     filter: '#content>*',
+                     formselector: 'form'
+               });           
        }});
 
   // the breadcrumb-links and the links of the 'tree'-navigati        on
@@ -119,8 +127,26 @@ jq(function() {
       refreshOverlay(wrap, srcfilter, '');
       return false;
       });
+      
+   //the edit form
+   jq('form#add').live('click',
+                                           function(event) {
+      var target = jq(this);
+      var src = target.parents('form').attr('action');
+      var wrap = target.parents('.overlaycontent'); 
+      var startup = wrap.find('input[name=startup_directory]').attr('value');      
+      var srcfilter = startup + '/createObject?type_name=Architect #content';
+      pushToHistory(wrap.data('srcfilter'));
+      wrap.data('srcfilter', srcfilter);
+      wrap.load(srcfilter, function() {
+          ploneFormTabbing.initialize();
+          });
+      //refreshOverlay(wrap, srcfilter, '');
+      return false;              
+                });
 
 });
+
 
 function disablecurrentrelations (widget_id) {
    jq('ul#' + widget_id + ' :input').each(
