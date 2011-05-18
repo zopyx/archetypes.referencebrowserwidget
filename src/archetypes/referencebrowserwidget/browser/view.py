@@ -327,28 +327,13 @@ class ReferenceBrowserPopup(BrowserView):
 
     def getPermissionToAdd(self):
         """ return the permission flag to add an item """
-        return self.widget.permission_to_add_item
-
-    def getEditForm(self):
-        """return edit form for Architect object"""
-        urltool = getToolByName(self.context, "portal_url")
-        portal  = urltool.getPortalObject()
-        try:
-            architect = portal.invokeFactory("Architect", "tmp_archi")
-        except:
-            pass
-        archi = getattr(portal, "tmp_archi")
-        #template = getMultiAdapter((self.context, self.request),
-                                #name="architect_edit")
-        #archiEdit = getMultiAdapter((archi, self.request,), IBrowserView)
-        return archi.base_edit()
-    def getEditUrl(self):
-        urltool = getToolByName(self.context, "portal_url")
-        portal  = urltool.getPortalObject()
-        try:
-            architect = portal.invokeFactory("Architect", "tmp_archi")
-        except:
-            pass
-        archi = getattr(portal, "tmp_archi")
-        return archi.absolute_url()+"/edit"        
+        return self.widget.permission_to_add_item  
+    
+    def getDestinationDirectoryToAdd(self):
+        """ return the directory where to add the created item
+        if the value is null, the item will be created in current directory"""
+        return self.widget.destination_directory_to_add    
         
+    def getAllowedTypes(self):
+        """return list of allowed types that can be added"""
+        return self.allowed_types

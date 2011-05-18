@@ -1,3 +1,5 @@
+var globalsrcfilter='';
+
 jq(function() {
 
   // Move the overlay div to be a direct child
@@ -15,6 +17,7 @@ jq(function() {
            var wrap = this.getOverlay().find('.overlaycontent');
            var src = this.getTrigger().attr('src');
            var srcfilter = src + ' >*';
+           globalsrcfilter = srcfilter;
            wrap.data('srcfilter', srcfilter);
            jq('div#content').data('overlay', this);
            resetHistory();
@@ -42,6 +45,7 @@ jq(function() {
       var src = target.attr('href');
       var wrap = target.parents('.overlaycontent');
       var srcfilter = src + ' >*';
+      globalsrcfilter = srcfilter;
       pushToHistory(wrap.data('srcfilter'));
       wrap.data('srcfilter', srcfilter);
       // the history we are constructing here is destinct from the
@@ -92,6 +96,7 @@ jq(function() {
           'select[name=path] :selected';
       var src = jq(src_selector).attr('value');
       var srcfilter = src + ' >*';
+      globalsrcfilter = srcfilter;      
       refreshOverlay(wrap, srcfilter, '');
       return false;
       });
@@ -102,6 +107,7 @@ jq(function() {
       var src = target.attr('href');
       var wrap = target.parents('.overlaycontent');
       var srcfilter = src + ' >*';
+      globalsrcfilter = srcfilter;      
       refreshOverlay(wrap, srcfilter, '');
       return false;
       });
@@ -122,6 +128,7 @@ jq(function() {
         '&fieldName=' + fieldname + '&multiValued=' + multi +
         '&close_window' + close_window + '&at_url=' + at_url;
       var srcfilter = src + '?' + qs + ' >*';
+      globalsrcfilter = srcfilter;      
       pushToHistory(wrap.data('srcfilter'));
       wrap.data('srcfilter', srcfilter);
       refreshOverlay(wrap, srcfilter, '');
@@ -129,13 +136,23 @@ jq(function() {
       });
       
    //the edit form
-   jq('form#add').live('click',
-                                           function(event) {
+   jq('[id^=atrb_] form#add').live('click',
+                  function(event) {
       var target = jq(this);
       var src = target.parents('form').attr('action');
       var wrap = target.parents('.overlaycontent'); 
-      var startup = wrap.find('input[name=startup_directory]').attr('value');      
-      var srcfilter = startup + '/createObject?type_name=Architect #content';
+      var typetocreate = target.find('select option:selected').text();
+      var startup = wrap.find('input[name=startup_directory]').attr('value'); 
+      var destinationdirectory = wrap.find('input[name=destination_directory_to_add]').attr('value');
+      
+      if (destinationdirectory) {     
+         var srcfilter = destinationdirectory + '/createObject?type_name=' + typetocreate + ' #content';
+         }
+      else
+      {
+          var srcfilter = startup + '/createObject?type_name=' + typetocreate + ' #content';
+          }
+          
       pushToHistory(wrap.data('srcfilter'));
       wrap.data('srcfilter', srcfilter);
       wrap.load(srcfilter, function() {
@@ -144,6 +161,50 @@ jq(function() {
       //refreshOverlay(wrap, srcfilter, '');
       return false;              
                 });
+
+   //the cancel form
+   jq('[id^=atrb_] input[name=form.button.cancel]').live('click',
+                  function(event) {
+      var $this = jq(this);
+      //get the action to perform for this form
+      var src = $this.parents('form').attr('action');
+      var formvalues = $this.parents('form').serialize() + '&form.button.cancel=Annuler';      
+      //perform action to cancel creation of the item
+      jq.post(src,formvalues, function(data) {
+          var wrap = jq('.overlaycontent');
+          wrap.load(globalsrcfilter);
+          }); 
+      //avoid default action
+      return false;              
+                });
+                
+   //the save button form
+   jq('[id^=atrb_] input[name=form.button.save]').live('click',
+                  function(event) {
+      var $this = jq(this);
+      //get the action to perform for this form
+      var src = $this.parents('form').attr('action');
+      var urlParts = src.split('/');
+      urlParts.pop();
+      urlParts.push('test_edit');
+      src = urlParts.join('/');
+      var formvalues = $this.parents('form').serialize() + '&form.button.save=Enregistrer';
+      //perform action to record this item at the right destination folder
+      jq.post(src, formvalues, function(data) {
+           var $this = jq(this);
+           var wrap = $this.parents('.overlaycontent');
+           var fieldname = wrap.find('input[name=fieldName]').attr('value');
+           //var multi = wrap.find('input[name=multiValued]').attr('value');
+           //var tablerow = target.parent().parent();
+           //var title = tablerow.find('strong').html();
+           //var uid = $this.attr('rel');
+          //refbrowser_setReference('ref_browser_' + fieldname,
+          //                        uid, title, 1));          
+          jq('div#content').data('overlay').close()
+          }); 
+      //avoid default action
+      return false;              
+                });                
 
 });
 
