@@ -85,7 +85,10 @@ The popup window can be configured using the following widget properties:
 
 * startup_directory_method: the name of a method or variable that, if
   available at the instance, will be used to obtain the path of the
-  startup directory. If present, 'startup_directory' will be ignored.
+  startup directory. It is also possible to specify a browser view
+  method (using @@some_view notation) in order to support a global
+  method for determining the startup directory based on the current
+  context. If present, 'startup_directory' will be ignored.
 
 * restrict_browsing_to_startup_directory: allows you to restrict the
   breadcrumbs ('allow_browse' property) to contents inside the

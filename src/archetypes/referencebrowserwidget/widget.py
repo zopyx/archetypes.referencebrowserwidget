@@ -44,6 +44,7 @@ class ReferenceBrowserWidget(ReferenceWidget):
     security = ClassSecurityInfo()
 
     security.declarePublic('getStartupDirectory')
+
     def getStartupDirectory(self, instance, field):
         """get widget startup directory
         """
@@ -52,16 +53,19 @@ class ReferenceBrowserWidget(ReferenceWidget):
         directory = ''
         if getattr(self, 'startup_directory_method', None):
             # First check that the method exists and isn't inherited.
-            method = getattr(aq_base(instance), self.startup_directory_method,
-                             False)
+            startup_directory_method = self.startup_directory_method
+            method = getattr(aq_base(instance), startup_directory_method, False)
             if method:
                 # Then get the method again, but with acquisition context this
                 # time:
-                method = getattr(instance, self.startup_directory_method, False)
+                method = getattr(instance, startup_directory_method, False)
                 if callable(method):
                     method = method()
-
                 directory = method
+            if startup_directory_method.startswith('@@'):
+                method = instance.restrictedTraverse(startup_directory_method, None)
+                if method is not None:
+                    directory = method()
 
         elif getattr(self, 'startup_directory', None):
             directory = self.startup_directory
